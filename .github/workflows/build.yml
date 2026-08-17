@@ -9,11 +9,16 @@ on:
 
 jobs:
   build:
-    runs-on: macos-14
+    runs-on: macos-15
 
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+
+      - name: Select Xcode 16
+        run: |
+          sudo xcode-select -switch /Applications/Xcode_16.0.app/Contents/Developer || sudo xcode-select -switch /Applications/Xcode.app/Contents/Developer
+          xcodebuild -version
 
       - name: Install Tools
         run: brew install xcodegen ldid
