@@ -35,8 +35,35 @@ jobs:
       - name: Install Tools
         run: brew install xcodegen ldid
 
+      - name: Generate Dynamic Version & Bundle Identifier
+        id: versioning
+        run: |
+          BUILD_NUM="${{ github.run_number }}"
+          TIMESTAMP="$(date +%Y%m%d%H%M)"
+          SHORT_SHA="$(git rev-parse --short HEAD)"
+          BUNDLE_ID="com.jasonxit.engine.b${BUILD_NUM}"
+          VERSION_NAME="2.0.${BUILD_NUM}"
+          DISPLAY_NAME="JASON XIT v2.${BUILD_NUM}"
+          IPA_FILENAME="JASONXIT_v2.${BUILD_NUM}_b${BUILD_NUM}_${SHORT_SHA}.ipa"
+          ARTIFACT_NAME="JASONXIT_v2.${BUILD_NUM}_b${BUILD_NUM}_${SHORT_SHA}.ipa"
+
+          echo "bundle_id=${BUNDLE_ID}" >> $GITHUB_OUTPUT
+          echo "version_name=${VERSION_NAME}" >> $GITHUB_OUTPUT
+          echo "display_name=${DISPLAY_NAME}" >> $GITHUB_OUTPUT
+          echo "timestamp=${TIMESTAMP}" >> $GITHUB_OUTPUT
+          echo "ipa_filename=${IPA_FILENAME}" >> $GITHUB_OUTPUT
+          echo "artifact_name=${ARTIFACT_NAME}" >> $GITHUB_OUTPUT
+
+          # Update Info.plist with unique bundle ID, version and display name
+          /usr/libexec/PlistBuddy -c "Set :CFBundleIdentifier ${BUNDLE_ID}" JASONXIT/Info.plist || true
+          /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString ${VERSION_NAME}" JASONXIT/Info.plist || true
+          /usr/libexec/PlistBuddy -c "Set :CFBundleVersion ${TIMESTAMP}" JASONXIT/Info.plist || true
+          /usr/libexec/PlistBuddy -c "Set :CFBundleDisplayName ${DISPLAY_NAME}" JASONXIT/Info.plist || true
+
       - name: Generate Xcode Project
-        run: xcodegen generate
+        run: |
+          sed -i '' "s/PRODUCT_BUNDLE_IDENTIFIER: com.jasonxit.engine/PRODUCT_BUNDLE_IDENTIFIER: ${{ steps.versioning.outputs.bundle_id }}/g" project.yml
+          xcodegen generate
 
       - name: Build Application
         run: |
@@ -64,10 +91,10 @@ jobs:
           else
             ldid -S Payload/JASONXIT.app
           fi
-          zip -vr JASONXIT_v2.0.ipa Payload
+          zip -vr "${{ steps.versioning.outputs.ipa_filename }}" Payload
 
       - name: Upload IPA Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: JASONXIT_v2.0_iOS.ipa
-          path: JASONXIT_v2.0.ipa
+          name: ${{ steps.versioning.outputs.artifact_name }}
+          path: ${{ steps.versioning.outputs.ipa_filename }}
