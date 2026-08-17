@@ -1,0 +1,40 @@
+name: JASONXIT
+options:
+  bundleIdPrefix: com.jasonxit
+  deploymentTarget:
+    iOS: 15.0
+  createIntermediateGroups: true
+
+targets:
+  JASONXIT:
+    type: application
+    platform: iOS
+    sources:
+      - path: JASONXIT
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.jasonxit.engine
+        PRODUCT_NAME: JASONXIT
+        INFOPLIST_FILE: JASONXIT/Info.plist
+        SWIFT_VERSION: "5.9"
+        IPHONEOS_DEPLOYMENT_TARGET: "15.0"
+        TARGETED_DEVICE_FAMILY: "1,2"
+        SWIFT_OBJC_BRIDGING_HEADER: JASONXIT/JASONXIT-Bridging-Header.h
+        GCC_PREPROCESSOR_DEFINITIONS:
+          - $(inherited)
+          - __arm64e__=1
+        OTHER_CFLAGS:
+          - -fmodules
+          - -fcxx-modules
+          - -Wno-implicit-function-declaration
+        OTHER_LDFLAGS:
+          - -framework Foundation
+          - -framework UIKit
+          - -framework CoreGraphics
+          - -framework QuartzCore
+          - -framework Security
+        CODE_SIGN_ENTITLEMENTS: JASONXIT/Entitlements.plist
+        CODE_SIGN_STYLE: Manual
+        CODE_SIGN_IDENTITY: ""
+        DEVELOPMENT_TEAM: ""
+        ENABLE_BITCODE: NO
