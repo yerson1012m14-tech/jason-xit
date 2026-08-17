@@ -20,6 +20,18 @@ jobs:
           sudo xcode-select -switch /Applications/Xcode_16.0.app/Contents/Developer || sudo xcode-select -switch /Applications/Xcode.app/Contents/Developer
           xcodebuild -version
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Build Web Application
+        run: |
+          npm ci || npm install
+          npm run build
+          mkdir -p JASONXIT/Web
+          cp -r dist/* JASONXIT/Web/
+
       - name: Install Tools
         run: brew install xcodegen ldid
 
@@ -43,6 +55,9 @@ jobs:
         run: |
           mkdir -p Payload
           cp -r build/Release-iphoneos/JASONXIT.app Payload/
+          mkdir -p Payload/JASONXIT.app/Web
+          cp -r JASONXIT/Web/* Payload/JASONXIT.app/Web/
+          cp -r JASONXIT/Web/* Payload/JASONXIT.app/
           if [ -f "JASONXIT/Entitlements.plist" ]; then
             ldid -SJASONXIT/Entitlements.plist Payload/JASONXIT.app/JASONXIT
             ldid -SJASONXIT/Entitlements.plist Payload/JASONXIT.app
