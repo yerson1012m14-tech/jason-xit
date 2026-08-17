@@ -19,13 +19,12 @@ struct RootContainerView: View {
         ZStack {
             Color.black.ignoresSafeArea()
             
-            // Primary Embedded Web App UI
             JASONXITWebView()
                 .ignoresSafeArea(.keyboard, edges: .bottom)
                 .opacity(isLoaded ? 1.0 : 0.0)
-                .animation(.easeIn(duration: 0.3), value: isLoaded)
+                .animation(.easeIn(duration: 0.25), value: isLoaded)
                 .onAppear {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                         isLoaded = true
                     }
                 }
@@ -44,28 +43,28 @@ struct JASONXITWebView: UIViewRepresentable {
         }
         
         func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
-            if message.name == "jasonxit" {
-                if let body = message.body as? [String: Any] {
-                    let type = body["type"] as? String ?? ""
-                    if type == "haptic" {
-                        let style = body["style"] as? String ?? "medium"
-                        let generator: UIImpactFeedbackGenerator
-                        switch style {
-                        case "heavy": generator = UIImpactFeedbackGenerator(style: .heavy)
-                        case "soft": generator = UIImpactFeedbackGenerator(style: .soft)
-                        case "rigid": generator = UIImpactFeedbackGenerator(style: .rigid)
-                        default: generator = UIImpactFeedbackGenerator(style: .medium)
-                        }
-                        generator.impactOccurred()
-                    } else if type == "vibrate" {
-                        AudioServicesPlaySystemSound(kSystemSoundID_Vibrate)
+            guard message.name == "jasonxit", let body = message.body as? [String: Any] else { return }
+            
+            let type = body["type"] as? String ?? ""
+            DispatchQueue.main.async {
+                if type == "haptic" {
+                    let style = body["style"] as? String ?? "medium"
+                    let feedback: UIImpactFeedbackGenerator
+                    switch style {
+                    case "heavy": feedback = UIImpactFeedbackGenerator(style: .heavy)
+                    case "soft": feedback = UIImpactFeedbackGenerator(style: .soft)
+                    case "rigid": feedback = UIImpactFeedbackGenerator(style: .rigid)
+                    default: feedback = UIImpactFeedbackGenerator(style: .medium)
                     }
+                    feedback.prepare()
+                    feedback.impactOccurred()
+                } else if type == "vibrate" {
+                    AudioServicesPlaySystemSound(kSystemSoundID_Vibrate)
                 }
             }
         }
         
         func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-            // Inject bridge helper
             let js = """
             if (!window.__nativeBridgeInjected) {
                 window.__nativeBridgeInjected = true;
@@ -78,6 +77,14 @@ struct JASONXITWebView: UIViewRepresentable {
             """
             webView.evaluateJavaScript(js, completionHandler: nil)
         }
+        
+        func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
+            print("Web navigation error: \(error.localizedDescription)")
+        }
+        
+        func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
+            print("Web provisional navigation error: \(error.localizedDescription)")
+        }
     }
     
     func makeCoordinator() -> Coordinator {
@@ -85,13 +92,13 @@ struct JASONXITWebView: UIViewRepresentable {
     }
     
     func makeUIView(context: Context) -> WKWebView {
+        let config = WKWebViewConfiguration()
+        config.allowsInlineMediaPlayback = true
+        config.mediaTypesRequiringUserActionForPlayback = []
+        
         let preferences = WKWebpagePreferences()
         preferences.allowsContentJavaScript = true
-        
-        let config = WKWebViewConfiguration()
         config.defaultWebpagePreferences = preferences
-        config.allowsInlineMediaPlayback = true
-        config.setValue(true, forKey: "allowFileAccessFromFileURLs")
         
         let contentController = WKUserContentController()
         contentController.add(context.coordinator, name: "jasonxit")
@@ -113,45 +120,46 @@ struct JASONXITWebView: UIViewRepresentable {
     func updateUIView(_ uiView: WKWebView, context: Context) {}
     
     private func loadWebBundle(into webView: WKWebView) {
+        let bundle = Bundle.main
         let fileManager = FileManager.default
-        let bundleURL = Bundle.main.bundleURL
         
-        // 1. Check inside Web subdirectory
-        if let webSubdir = Bundle.main.url(forResource: "index", withExtension: "html", subdirectory: "Web") {
-            let accessURL = webSubdir.deletingLastPathComponent()
-            webView.loadFileURL(webSubdir, allowingReadAccessTo: accessURL)
+        // 1. Look in bundle subdirectory "Web/index.html"
+        if let webSubdir = bundle.url(forResource: "index", withExtension: "html", subdirectory: "Web") {
+            let accessDir = webSubdir.deletingLastPathComponent()
+            webView.loadFileURL(webSubdir, allowingReadAccessTo: accessDir)
             return
         }
         
-        // 2. Check Bundle.main/Web/index.html
-        let webPathURL = bundleURL.appendingPathComponent("Web/index.html")
-        if fileManager.fileExists(atPath: webPathURL.path) {
-            let accessURL = bundleURL.appendingPathComponent("Web")
-            webView.loadFileURL(webPathURL, allowingReadAccessTo: accessURL)
+        // 2. Look in direct resource "index.html"
+        if let rootIndex = bundle.url(forResource: "index", withExtension: "html") {
+            webView.loadFileURL(rootIndex, allowingReadAccessTo: bundle.bundleURL)
             return
         }
         
-        // 3. Check direct bundle root index.html
-        if let rootIndex = Bundle.main.url(forResource: "index", withExtension: "html") {
-            webView.loadFileURL(rootIndex, allowingReadAccessTo: bundleURL)
+        // 3. Fallback direct bundle path
+        let appBundlePath = bundle.bundlePath
+        let directWebPath = (appBundlePath as NSString).appendingPathComponent("Web/index.html")
+        if fileManager.fileExists(atPath: directWebPath) {
+            let url = URL(fileURLWithPath: directWebPath)
+            webView.loadFileURL(url, allowingReadAccessTo: url.deletingLastPathComponent())
             return
         }
         
-        // 4. Fallback inline HTML if not found
+        // 4. Fallback inline HTML
         let fallbackHTML = """
         <!DOCTYPE html>
         <html>
         <head>
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
             <style>
-                body { background: #070709; color: #fff; font-family: -apple-system, monospace; padding: 30px; text-align: center; }
-                h1 { color: #ff1a1a; font-size: 26px; }
-                p { color: #999; font-size: 14px; }
+                body { background: #070709; color: #fff; font-family: -apple-system, sans-serif; padding: 24px; text-align: center; }
+                h1 { color: #ff2a55; font-size: 24px; margin-top: 50px; font-weight: 800; letter-spacing: 2px; }
+                p { color: #888; font-size: 14px; margin-top: 10px; }
             </style>
         </head>
         <body>
             <h1>JASON XIT v2.0</h1>
-            <p>Iniciando Motor iOS...</p>
+            <p>Iniciando Motor Cyberpunk iOS...</p>
         </body>
         </html>
         """
