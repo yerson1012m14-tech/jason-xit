@@ -1,0 +1,54 @@
+name: Build JASON XIT iOS IPA
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-14
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Install Tools
+        run: brew install xcodegen ldid
+
+      - name: Generate Xcode Project
+        run: xcodegen generate
+
+      - name: Build Application
+        run: |
+          xcodebuild clean build \
+            -project JASONXIT.xcodeproj \
+            -scheme JASONXIT \
+            -configuration Release \
+            -sdk iphoneos \
+            -destination 'generic/platform=iOS' \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            AD_HOC_CODE_SIGNING_ALLOWED=YES \
+            CONFIGURATION_BUILD_DIR=build/Release-iphoneos
+
+      - name: Package & Sign IPA
+        run: |
+          mkdir -p Payload
+          cp -r build/Release-iphoneos/JASONXIT.app Payload/
+          if [ -f "JASONXIT/Entitlements.plist" ]; then
+            ldid -SJASONXIT/Entitlements.plist Payload/JASONXIT.app/JASONXIT
+            ldid -SJASONXIT/Entitlements.plist Payload/JASONXIT.app
+          else
+            ldid -S Payload/JASONXIT.app
+          fi
+          zip -vr JASONXIT_v2.0.ipa Payload
+
+      - name: Upload IPA Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: JASONXIT_v2.0_iOS.ipa
+          path: JASONXIT_v2.0.ipa
