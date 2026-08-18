@@ -159,6 +159,8 @@
 				SWIFT_OBJC_BRIDGING_HEADER = "JASONXIT/JASONXIT-Bridging-Header.h";
 				SWIFT_VERSION = 5.9;
 				TARGETED_DEVICE_FAMILY = "1,2";
+USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/**";
+
 			};
 			name = Debug;
 		};
@@ -181,6 +183,8 @@
 				SWIFT_OBJC_BRIDGING_HEADER = "JASONXIT/JASONXIT-Bridging-Header.h";
 				SWIFT_VERSION = 5.9;
 				TARGETED_DEVICE_FAMILY = "1,2";
+USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/**";
+
 			};
 			name = Release;
 		};
