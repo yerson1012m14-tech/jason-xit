@@ -33,7 +33,6 @@ targets:
           - -framework CoreGraphics
           - -framework QuartzCore
           - -framework Security
-          - -framework WebKit
         CODE_SIGN_ENTITLEMENTS: JASONXIT/Entitlements.plist
         CODE_SIGN_STYLE: Manual
         CODE_SIGN_IDENTITY: ""
