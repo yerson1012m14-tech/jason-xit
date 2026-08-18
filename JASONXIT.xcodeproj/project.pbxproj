@@ -1,0 +1,260 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		9C010001 /* JASONXITApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C010011 /* JASONXITApp.swift */; };
+		9C010002 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C010012 /* ContentView.swift */; };
+		9C010003 /* JASONXITCore.m in Sources */ = {isa = PBXBuildFile; fileRef = 9C010013 /* JASONXITCore.m */; };
+		9C010004 /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 9C010014 /* Info.plist */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		9C010010 /* JASONXIT.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = JASONXIT.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		9C010011 /* JASONXITApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JASONXITApp.swift; sourceTree = "<group>"; };
+		9C010012 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		9C010013 /* JASONXITCore.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = JASONXITCore.m; sourceTree = "<group>"; };
+		9C010014 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		9C010015 /* JASONXITCore.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = JASONXITCore.h; sourceTree = "<group>"; };
+		9C010016 /* JASONXIT-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "JASONXIT-Bridging-Header.h"; sourceTree = "<group>"; };
+		9C010017 /* Entitlements.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Entitlements.plist; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		9C010020 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		9C010030 = {
+			isa = PBXGroup;
+			children = (
+				9C010031 /* JASONXIT */,
+				9C010032 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		9C010031 /* JASONXIT */ = {
+			isa = PBXGroup;
+			children = (
+				9C010011 /* JASONXITApp.swift */,
+				9C010012 /* ContentView.swift */,
+				9C010015 /* JASONXITCore.h */,
+				9C010013 /* JASONXITCore.m */,
+				9C010016 /* JASONXIT-Bridging-Header.h */,
+				9C010014 /* Info.plist */,
+				9C010017 /* Entitlements.plist */,
+			);
+			path = JASONXIT;
+			sourceTree = "<group>";
+		};
+		9C010032 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				9C010010 /* JASONXIT.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		9C010040 /* JASONXIT */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 9C010050 /* Build configuration list for PBXNativeTarget "JASONXIT" */;
+			buildPhases = (
+				9C010021 /* Sources */,
+				9C010020 /* Frameworks */,
+				9C010022 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = JASONXIT;
+			productName = JASONXIT;
+			productReference = 9C010010 /* JASONXIT.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		9C010000 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1500;
+				TargetAttributes = {
+					9C010040 = {
+						CreatedOnToolsVersion = 15.0;
+					};
+				};
+			};
+			buildConfigurationList = 9C010060 /* Build configuration list for PBXProject "JASONXIT" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 9C010030;
+			productRefGroup = 9C010032 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				9C010040 /* JASONXIT */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		9C010022 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9C010004 /* Info.plist in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		9C010021 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9C010001 /* JASONXITApp.swift in Sources */,
+				9C010002 /* ContentView.swift in Sources */,
+				9C010003 /* JASONXITCore.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		9C010051 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = JASONXIT/Entitlements.plist;
+				CODE_SIGN_STYLE = Manual;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = JASONXIT/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				MARKETING_VERSION = 2.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.jasonxit.engine;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "JASONXIT/JASONXIT-Bridging-Header.h";
+				SWIFT_VERSION = 5.9;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		9C010052 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = JASONXIT/Entitlements.plist;
+				CODE_SIGN_STYLE = Manual;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = JASONXIT/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				MARKETING_VERSION = 2.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.jasonxit.engine;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "JASONXIT/JASONXIT-Bridging-Header.h";
+				SWIFT_VERSION = 5.9;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		9C010061 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+			};
+			name = Debug;
+		};
+		9C010062 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = iphoneos;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		9C010050 /* Build configuration list for PBXNativeTarget "JASONXIT" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9C010051 /* Debug */,
+				9C010052 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		9C010060 /* Build configuration list for PBXProject "JASONXIT" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9C010061 /* Debug */,
+				9C010062 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+	};
+	rootObject = 9C010000 /* Project object */;
+}
