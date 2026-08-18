@@ -34,6 +34,7 @@ export const ArchivosTab: React.FC = () => {
     createItem,
     deleteItem,
     chmodItem,
+    apps,
   } = useApp();
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -207,6 +208,31 @@ export const ArchivosTab: React.FC = () => {
               <ChevronRight className="h-5 w-5 text-[#ff1a1a]" />
             </button>
 
+            {/* Featured Direct Game Access */}
+            <div className="pt-1 text-[11px] font-bold font-mono tracking-wider text-red-400 uppercase px-1 flex items-center justify-between">
+              <span>App Data Prioritaria</span>
+              <span className="text-[9px] px-1.5 py-0.2 border border-red-500/40 rounded bg-red-950/50 text-red-300">AUTO MHA-C2</span>
+            </div>
+
+            <button
+              onClick={() => navigateTo('/var/mobile/Containers/Data/Application/E84A12BC-33F1-4A92-BD81-893C2A9B11E4')}
+              className="w-full flex items-center justify-between rounded-xl border border-red-500/50 bg-gradient-to-r from-red-950/40 via-[#160505] to-[#101010] p-3.5 text-left transition-all hover:border-red-400 hover:shadow-[0_0_15px_rgba(255,26,26,0.3)] active:scale-[0.99]"
+            >
+              <div className="flex items-center gap-3">
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-red-900/40 border border-red-600/50 text-red-300 font-black text-sm">
+                  🎮
+                </div>
+                <div>
+                  <div className="font-mono text-xs font-bold text-white flex items-center gap-1.5">
+                    <span>MHA-C2 App Data</span>
+                    <span className="text-[10px] text-red-400 font-mono font-normal">(com.sony.mha.c2)</span>
+                  </div>
+                  <div className="font-mono text-[10px] text-zinc-400">/var/mobile/.../E84A12BC-33F1-4A92-BD81-893C2A9B11E4</div>
+                </div>
+              </div>
+              <ChevronRight className="h-4 w-4 text-red-400" />
+            </button>
+
             {/* Quick shortcuts to system roots */}
             <div className="pt-2 text-[11px] font-bold font-mono tracking-wider text-zinc-500 uppercase px-1">
               Acceso Directo al Sistema
@@ -214,16 +240,23 @@ export const ArchivosTab: React.FC = () => {
 
             <button
               onClick={() => navigateTo('/var/mobile/Containers/Data/Application')}
-              className="w-full flex items-center justify-between rounded-xl border border-zinc-800/80 bg-[#0f0f0f] p-3 text-left transition-all hover:border-red-900 hover:bg-[#151515]"
+              className="w-full flex items-center justify-between rounded-xl border border-red-900/50 bg-[#120a0a] p-3.5 text-left transition-all hover:border-red-600 hover:bg-[#180e0e] hover:shadow-[0_0_12px_rgba(255,26,26,0.2)]"
             >
               <div className="flex items-center gap-3">
-                <Folder className="h-5 w-5 text-red-400" />
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-red-950 border border-red-700/60 text-red-400">
+                  <Folder className="h-5 w-5" />
+                </div>
                 <div>
-                  <div className="font-mono text-xs font-bold text-zinc-200">App Containers</div>
-                  <div className="font-mono text-[10px] text-zinc-500">/var/mobile/Containers/Data/Application</div>
+                  <div className="font-mono text-xs font-bold text-white flex items-center gap-2">
+                    <span>Todas las Apps (App Data)</span>
+                    <span className="text-[10px] bg-red-950/80 border border-red-600/40 text-red-300 px-1.5 py-0.2 rounded">
+                      {apps.length} Apps
+                    </span>
+                  </div>
+                  <div className="font-mono text-[10px] text-zinc-400">/var/mobile/Containers/Data/Application</div>
                 </div>
               </div>
-              <ChevronRight className="h-4 w-4 text-zinc-500" />
+              <ChevronRight className="h-4 w-4 text-red-400" />
             </button>
 
             <button
@@ -233,7 +266,7 @@ export const ArchivosTab: React.FC = () => {
               <div className="flex items-center gap-3">
                 <Folder className="h-5 w-5 text-red-400" />
                 <div>
-                  <div className="font-mono text-xs font-bold text-zinc-200">System Applications</div>
+                  <div className="font-mono text-xs font-bold text-zinc-200">System Applications (.app)</div>
                   <div className="font-mono text-[10px] text-zinc-500">/Applications</div>
                 </div>
               </div>
@@ -283,54 +316,108 @@ export const ArchivosTab: React.FC = () => {
         ) : (
           /* Items List */
           <div className="space-y-2">
-            {filteredItems.map(item => (
-              <div
-                key={item.name}
-                className="group flex items-center justify-between rounded-xl border border-zinc-800/80 bg-[#101010] p-3 transition-all hover:border-red-500/40 hover:bg-[#151515]"
-              >
-                <button
-                  onClick={() => handleItemClick(item)}
-                  className="flex flex-1 items-center gap-3 text-left overflow-hidden"
-                >
-                  <div className="shrink-0">{getFileIcon(item)}</div>
-                  <div className="truncate">
-                    <div className="font-mono text-xs font-bold text-white group-hover:text-red-400 transition-colors truncate">
-                      {item.name}
-                    </div>
-                    <div className="flex items-center gap-2 font-mono text-[10px] text-zinc-500">
-                      <span className="font-mono text-zinc-400">{item.permissions || 'rwxr-xr-x'}</span>
-                      {item.size && <span>• {item.size}</span>}
-                      {item.modified && <span className="hidden sm:inline">• {item.modified}</span>}
-                    </div>
-                  </div>
-                </button>
-
-                <div className="flex items-center gap-1.5 pl-2">
-                  <button
-                    onClick={() => {
-                      setChmodModalItem(item);
-                      setChmodValue(item.permissions || 'rwxr-xr-x');
-                    }}
-                    className="opacity-0 group-hover:opacity-100 p-1.5 text-zinc-500 hover:text-amber-400 transition-all rounded"
-                    title="Cambiar permisos (chmod)"
-                  >
-                    <KeyRound className="h-3.5 w-3.5" />
-                  </button>
-
-                  <button
-                    onClick={() => deleteItem(item.name)}
-                    className="opacity-0 group-hover:opacity-100 p-1.5 text-zinc-500 hover:text-red-400 transition-all rounded"
-                    title="Eliminar"
-                  >
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </button>
-
-                  {item.isDirectory ? (
-                    <ChevronRight className="h-4 w-4 text-[#ff1a1a]/70 shrink-0" />
-                  ) : null}
-                </div>
+            {/* If inside /var/mobile/Containers/Data/Application, show helper info */}
+            {currentPath === '/var/mobile/Containers/Data/Application' && (
+              <div className="p-2.5 mb-2 rounded-lg border border-red-900/40 bg-red-950/20 flex items-center justify-between font-mono text-xs">
+                <span className="text-zinc-300">
+                  📁 Contenedores de Aplicaciones (<span className="text-red-400 font-bold">{filteredItems.length} detectadas</span>)
+                </span>
+                <span className="text-[10px] text-zinc-500">Mapeo UUID Automático</span>
               </div>
-            ))}
+            )}
+
+            {filteredItems.map(item => {
+              // Resolve matching app if in /var/mobile/Containers/Data/Application
+              const matchedApp =
+                currentPath === '/var/mobile/Containers/Data/Application'
+                  ? apps.find(a => a.dataPath.endsWith(item.name))
+                  : null;
+
+              const isMHA = matchedApp?.id === 'app-mha-c2' || item.name.includes('E84A12BC');
+
+              return (
+                <div
+                  key={item.name}
+                  className={`group flex items-center justify-between rounded-xl border transition-all ${
+                    isMHA
+                      ? 'border-red-500/80 bg-gradient-to-r from-red-950/40 via-[#160a0a] to-[#101010] shadow-[0_0_12px_rgba(255,26,26,0.25)]'
+                      : 'border-zinc-800/80 bg-[#101010] hover:border-red-500/40 hover:bg-[#151515]'
+                  } p-3`}
+                >
+                  <button
+                    onClick={() => handleItemClick(item)}
+                    className="flex flex-1 items-center gap-3 text-left overflow-hidden"
+                  >
+                    <div className="shrink-0">
+                      {isMHA ? (
+                        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-red-900/50 border border-red-500/60 text-base">
+                          🎮
+                        </div>
+                      ) : matchedApp ? (
+                        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-zinc-900 border border-zinc-700 text-base">
+                          📱
+                        </div>
+                      ) : (
+                        getFileIcon(item)
+                      )}
+                    </div>
+                    <div className="truncate">
+                      <div className="font-mono text-xs font-bold text-white group-hover:text-red-400 transition-colors truncate flex items-center gap-2">
+                        <span>{matchedApp ? matchedApp.name : item.name}</span>
+                        {isMHA && (
+                          <span className="text-[9px] bg-red-900/60 border border-red-500 text-red-200 px-1.5 py-0.2 rounded font-bold">
+                            MHA-C2
+                          </span>
+                        )}
+                        {matchedApp && !isMHA && (
+                          <span className="text-[9px] bg-zinc-800 text-zinc-400 px-1 py-0.2 rounded">
+                            {matchedApp.version}
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2 font-mono text-[10px] text-zinc-500 truncate">
+                        {matchedApp && (
+                          <span className="text-red-400 font-mono font-medium">
+                            {matchedApp.bundleId} •
+                          </span>
+                        )}
+                        {matchedApp && (
+                          <span className="text-zinc-500 truncate">{item.name} •</span>
+                        )}
+                        <span className="font-mono text-zinc-400">{item.permissions || 'rwxr-xr-x'}</span>
+                        {item.size && <span>• {item.size}</span>}
+                        {item.modified && <span className="hidden sm:inline">• {item.modified}</span>}
+                      </div>
+                    </div>
+                  </button>
+
+                  <div className="flex items-center gap-1.5 pl-2">
+                    <button
+                      onClick={() => {
+                        setChmodModalItem(item);
+                        setChmodValue(item.permissions || 'rwxr-xr-x');
+                      }}
+                      className="opacity-0 group-hover:opacity-100 p-1.5 text-zinc-500 hover:text-amber-400 transition-all rounded"
+                      title="Cambiar permisos (chmod)"
+                    >
+                      <KeyRound className="h-3.5 w-3.5" />
+                    </button>
+
+                    <button
+                      onClick={() => deleteItem(item.name)}
+                      className="opacity-0 group-hover:opacity-100 p-1.5 text-zinc-500 hover:text-red-400 transition-all rounded"
+                      title="Eliminar"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </button>
+
+                    {item.isDirectory ? (
+                      <ChevronRight className="h-4 w-4 text-[#ff1a1a]/70 shrink-0" />
+                    ) : null}
+                  </div>
+                </div>
+              );
+            })}
           </div>
         )}
       </div>

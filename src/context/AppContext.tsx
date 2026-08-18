@@ -93,6 +93,22 @@ const AppContext = createContext<AppContextType | null>(null);
 
 const DEFAULT_TWEAKS: TweakPatch[] = [
   {
+    id: 'house-arrest-mha',
+    name: 'MobileHouseArrest Service Hook (com.apple.mobile.MobileHouseArrest)',
+    description: 'Bypass de aislamiento de contenedores para lectura/escritura directa en Application Data (mha-c2)',
+    status: 'installed',
+    targetPath: '/System/Library/Lockdown/Services.plist',
+    category: 'Daemon / AFC',
+  },
+  {
+    id: 'afc2-root',
+    name: 'Apple File Conduit 2 (AFC2 Daemon)',
+    description: 'Servidor AFC2 con privilegios de root para transferencia de datos y mods sin restricciones',
+    status: 'installed',
+    targetPath: '/usr/libexec/afcd',
+    category: 'Daemon / AFC',
+  },
+  {
     id: 'filza-root',
     name: 'Filza Root Sandbox Extension',
     description: 'Extiende el sandbox de Filza File Manager para acceso root sin restricciones',
@@ -215,7 +231,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Apps State
   const [apps] = useState<AppEntry[]>(INITIAL_APPS);
-  const [appSearchQuery, setAppSearchQuery] = useState<string>('');
+  const [appSearchQuery, setAppSearchQuery] = useState<string>('mha-c2');
 
   // Key validation & activation
   const activateKey = useCallback((rawKey: string): boolean => {
@@ -321,6 +337,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     await new Promise(r => setTimeout(r, 300));
 
     addLog('[+] sandbox_elevate_to_root() success! Filza sandbox extension active.', 'success');
+    addLog('[+] Hooking MobileHouseArrest (com.apple.mobile.MobileHouseArrest) container service...', 'success');
+    addLog('[+] AFC2 daemon connected: Access to /var/mobile/Containers/Data/Application enabled.', 'success');
     addLog('[✓] MOTOR ACTIVO — Acceso total al sistema de archivos concedido.', 'success');
 
     sounds.playSuccess();

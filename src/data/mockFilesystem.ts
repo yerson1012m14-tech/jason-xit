@@ -2,6 +2,17 @@ import { FSItem, AppEntry } from '../types';
 
 export const INITIAL_APPS: AppEntry[] = [
   {
+    id: 'app-mha-c2',
+    name: 'MHA: The Strongest Hero (C2)',
+    bundleId: 'com.sony.mha.c2',
+    version: '1.8.5',
+    category: 'Games & Action',
+    dataPath: '/var/mobile/Containers/Data/Application/E84A12BC-33F1-4A92-BD81-893C2A9B11E4',
+    bundlePath: '/var/containers/Bundle/Application/E84A12BC-33F1-4A92-BD81-893C2A9B11E4/mha-c2.app',
+    size: '3.42 GB',
+    icon: 'Terminal',
+  },
+  {
     id: 'app-jx',
     name: 'JASON XIT',
     bundleId: 'com.jasonxit.engine',
@@ -341,6 +352,7 @@ ps aux | grep launchd
   ],
 
   '/var/mobile/Containers/Data/Application': [
+    { name: 'E84A12BC-33F1-4A92-BD81-893C2A9B11E4', isDirectory: true, permissions: 'rwxr-xr-x', modified: '2026-08-17 06:10', type: 'directory' },
     { name: '09E9B685-7456-4856-9C10-47DF26B76C33', isDirectory: true, permissions: 'rwxr-xr-x', modified: '2026-08-17 05:30', type: 'directory' },
     { name: '1A2B3C4D-5E6F-7A8B-9C0D-1E2F3A4B5C6D', isDirectory: true, permissions: 'rwxr-xr-x', modified: '2026-08-16 20:10', type: 'directory' },
     { name: 'F1E2D3C4-B5A6-7890-1234-56789ABCDEF0', isDirectory: true, permissions: 'rwxr-xr-x', modified: '2026-08-16 22:45', type: 'directory' },
@@ -350,6 +362,84 @@ ps aux | grep launchd
     { name: '9A8B7C6D-5E4F-3A2B-1C0D-EF9876543210', isDirectory: true, permissions: 'rwxr-xr-x', modified: '2026-08-16 19:20', type: 'directory' },
     { name: '7E6D5C4B-3A2F-1E0D-9C8B-7A6F5E4D3C2B', isDirectory: true, permissions: 'rwxr-xr-x', modified: '2026-08-16 23:05', type: 'directory' },
     { name: '3D2C1B0A-9F8E-7D6C-5B4A-3F2E1D0C9B8A', isDirectory: true, permissions: 'rwxr-xr-x', modified: '2026-08-17 02:40', type: 'directory' },
+  ],
+
+  // JASONXIT App Container
+  '/var/mobile/Containers/Data/Application/E84A12BC-33F1-4A92-BD81-893C2A9B11E4': [
+    { name: 'Documents', isDirectory: true, permissions: 'rwxr-xr-x', modified: '2026-08-17 06:10', type: 'directory' },
+    { name: 'Library', isDirectory: true, permissions: 'rwxr-xr-x', modified: '2026-08-17 06:10', type: 'directory' },
+    { name: 'tmp', isDirectory: true, permissions: 'rwxrwxrwx', modified: '2026-08-17 06:10', type: 'directory' },
+    {
+      name: '.com.apple.mobile_container_manager.metadata.plist',
+      isDirectory: false,
+      size: '980 B',
+      permissions: 'rw-r--r--',
+      modified: '2026-08-17 06:10',
+      type: 'plist',
+      content: `<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>MCMMetadataIdentifier</key>
+    <string>com.sony.mha.c2</string>
+    <key>MCMMetadataUUID</key>
+    <string>E84A12BC-33F1-4A92-BD81-893C2A9B11E4</string>
+    <key>MCMCategory</key>
+    <integer>1</integer>
+</dict>
+</plist>`,
+    },
+  ],
+
+  '/var/mobile/Containers/Data/Application/E84A12BC-33F1-4A92-BD81-893C2A9B11E4/Documents': [
+    { name: 'SaveData', isDirectory: true, permissions: 'rwxr-xr-x', modified: '2026-08-17 06:10', type: 'directory' },
+    { name: 'Config', isDirectory: true, permissions: 'rwxr-xr-x', modified: '2026-08-17 06:10', type: 'directory' },
+    {
+      name: 'GameConfig.json',
+      isDirectory: false,
+      size: '4.2 KB',
+      permissions: 'rw-r--r--',
+      modified: '2026-08-17 06:10',
+      type: 'json',
+      content: JSON.stringify(
+        {
+          gameId: 'mha-c2',
+          title: 'My Hero Academia: The Strongest Hero (C2)',
+          targetFPS: 120,
+          resolutionScale: 1.0,
+          antiAliasing: 'MSAA_4X',
+          highPerformanceMode: true,
+          lowLatencyInput: true,
+        },
+        null,
+        2
+      ),
+    },
+  ],
+
+  '/var/mobile/Containers/Data/Application/E84A12BC-33F1-4A92-BD81-893C2A9B11E4/Library': [
+    { name: 'Preferences', isDirectory: true, permissions: 'rwxr-xr-x', modified: '2026-08-17 06:10', type: 'directory' },
+    { name: 'Caches', isDirectory: true, permissions: 'rwxr-xr-x', modified: '2026-08-17 06:10', type: 'directory' },
+    {
+      name: 'com.sony.mha.c2.plist',
+      isDirectory: false,
+      size: '1.2 KB',
+      permissions: 'rw-r--r--',
+      modified: '2026-08-17 06:10',
+      type: 'plist',
+      content: `<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>AppBundleIdentifier</key>
+    <string>com.sony.mha.c2</string>
+    <key>ServerCluster</key>
+    <string>C2-Global-Prod</string>
+    <key>GraphicsPreset</key>
+    <string>UltraHigh60</string>
+</dict>
+</plist>`,
+    },
   ],
 
   // JASONXIT App Container

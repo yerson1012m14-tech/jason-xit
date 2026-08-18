@@ -106,15 +106,60 @@ export const AppDataTab: React.FC = () => {
 
         {/* Search Apps Filter */}
         {!selectedApp && (
-          <div className="mt-2 relative">
-            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-zinc-500" />
-            <input
-              type="text"
-              value={appSearchQuery}
-              onChange={e => setAppSearchQuery(e.target.value)}
-              placeholder="Buscar aplicación o bundle ID..."
-              className="w-full rounded-lg border border-zinc-800 bg-zinc-900/80 py-1.5 pl-8 pr-3 font-mono text-xs text-white placeholder-zinc-500 outline-none focus:border-red-500"
-            />
+          <div className="mt-2 space-y-2">
+            <div className="relative">
+              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-zinc-500" />
+              <input
+                type="text"
+                value={appSearchQuery}
+                onChange={e => setAppSearchQuery(e.target.value)}
+                placeholder="Buscar aplicación o bundle ID..."
+                className="w-full rounded-lg border border-zinc-800 bg-zinc-900/80 py-1.5 pl-8 pr-8 font-mono text-xs text-white placeholder-zinc-500 outline-none focus:border-red-500"
+              />
+              {appSearchQuery && (
+                <button
+                  onClick={() => setAppSearchQuery('')}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] font-mono text-zinc-500 hover:text-white"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+
+            {/* Quick Filter Presets */}
+            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-[11px] font-mono">
+              <span className="text-zinc-500 text-[10px] shrink-0">Filtro rápido:</span>
+              <button
+                onClick={() => setAppSearchQuery('mha-c2')}
+                className={`px-2.5 py-0.5 rounded-md border transition-all shrink-0 ${
+                  appSearchQuery.toLowerCase() === 'mha-c2'
+                    ? 'border-red-500 bg-red-950/60 text-red-400 font-bold shadow-[0_0_8px_rgba(255,26,26,0.3)]'
+                    : 'border-zinc-800 bg-zinc-900/50 text-zinc-400 hover:border-zinc-700'
+                }`}
+              >
+                🎮 MHA-C2 (Auto)
+              </button>
+              <button
+                onClick={() => setAppSearchQuery('')}
+                className={`px-2 py-0.5 rounded-md border transition-all shrink-0 ${
+                  appSearchQuery === ''
+                    ? 'border-zinc-700 bg-zinc-800 text-white font-bold'
+                    : 'border-zinc-800 bg-zinc-900/50 text-zinc-400 hover:border-zinc-700'
+                }`}
+              >
+                Todas ({apps.length})
+              </button>
+              <button
+                onClick={() => setAppSearchQuery('filza')}
+                className={`px-2 py-0.5 rounded-md border transition-all shrink-0 ${
+                  appSearchQuery.toLowerCase() === 'filza'
+                    ? 'border-red-500 bg-red-950/60 text-red-400 font-bold'
+                    : 'border-zinc-800 bg-zinc-900/50 text-zinc-400 hover:border-zinc-700'
+                }`}
+              >
+                Filza
+              </button>
+            </div>
           </div>
         )}
       </div>
