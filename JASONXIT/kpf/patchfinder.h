@@ -6,7 +6,13 @@
 #ifndef PATCHFINDER_H
 #define PATCHFINDER_H
 
+#include <stdint.h>
+#include <stdbool.h>
+
+#ifdef __OBJC__
 #import <Foundation/Foundation.h>
+#endif
+
 #import "xpf.h"
 
 #ifdef __cplusplus

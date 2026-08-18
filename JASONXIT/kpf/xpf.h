@@ -6,9 +6,13 @@
 #ifndef XPF_H
 #define XPF_H
 
+#include <stdint.h>
+#include <stdbool.h>
+#include <stddef.h>
+
+#ifdef __OBJC__
 #import <Foundation/Foundation.h>
-#import <stdint.h>
-#import <stdbool.h>
+#endif
 
 #ifdef __cplusplus
 extern "C" {
