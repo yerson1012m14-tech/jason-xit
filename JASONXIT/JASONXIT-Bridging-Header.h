@@ -2,9 +2,8 @@
 #define JASONXIT_Bridging_Header_h
 
 #import <Foundation/Foundation.h>
-
-// Quitamos la subcarpeta de la ruta para que busque de forma general
-#import "sandbox_escape.h"
-#import "kexploit.h" 
+#import <UIKit/UIKit.h>
+#import "JASONXITCore.h"
+#import "kexploit.h"
 
 #endif
