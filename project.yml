@@ -1,79 +1,41 @@
-name: Build JASON XIT iOS IPA
+name: JASONXIT
+options:
+  bundleIdPrefix: com.jasonxit
+  deploymentTarget:
+    iOS: 15.0
+  createIntermediateGroups: true
 
-on:
-  push:
-    branches: [ "main", "master" ]
-  pull_request:
-    branches: [ "main", "master" ]
-  workflow_dispatch:
+targets:
+  JASONXIT:
+    type: application
+    platform: iOS
+    sources:
+      - path: JASONXIT
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.jasonxit.app
+        PRODUCT_NAME: JASONXIT
+        INFOPLIST_FILE: JASONXIT/Info.plist
+        GENERATE_INFOPLIST_FILE: NO
+        SWIFT_VERSION: "5.9"
+        IPHONEOS_DEPLOYMENT_TARGET: "15.0"
+        TARGETED_DEVICE_FAMILY: "1,2"
+        CODE_SIGNING_ALLOWED: NO
+        CODE_SIGNING_REQUIRED: NO
+        CODE_SIGN_IDENTITY: ""
+        AD_HOC_CODE_SIGNING_ALLOWED: YES
+        DEVELOPMENT_TEAM: ""
+        ENABLE_BITCODE: NO
+        SWIFT_OBJC_BRIDGING_HEADER: "JASONXIT/JASONXIT-Bridging-Header.h"
+        ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES: YES
+        CODE_SIGN_ENTITLEMENTS: "JASONXIT/Entitlements.plist"
 
-jobs:
-  build:
-    runs-on: macos-14
-
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Select Xcode
-        run: |
-          echo "Finding Xcode on runner..."
-          DEVELOPER_DIR="/Applications/Xcode_15.4.app/Contents/Developer"
-          if [ ! -d "$DEVELOPER_DIR" ]; then
-            DEVELOPER_DIR="$(find /Applications -maxdepth 1 -name 'Xcode*.app' | sort -V | tail -n 1)/Contents/Developer"
-          fi
-          echo "Using Developer Dir: $DEVELOPER_DIR"
-          sudo xcode-select -switch "$DEVELOPER_DIR"
-          xcodebuild -version
-
-      - name: Install Build Tools
-        run: |
-          HOMEBREW_NO_AUTO_UPDATE=1 brew install xcodegen ldid || true
-
-      - name: Generate Dynamic Version & Naming
-        id: versioning
-        run: |
-          BUILD_NUM="${{ github.run_number }}"
-          TIMESTAMP="$(date +%Y%m%d%H%M)"
-          SHORT_SHA="$(git rev-parse --short HEAD || echo 'build')"
-          IPA_FILENAME="JASONXIT_v2.0_b${BUILD_NUM}_${SHORT_SHA}.ipa"
-          ARTIFACT_NAME="JASONXIT_v2.0_b${BUILD_NUM}_${SHORT_SHA}.ipa"
-
-          echo "ipa_filename=${IPA_FILENAME}" >> $GITHUB_OUTPUT
-          echo "artifact_name=${ARTIFACT_NAME}" >> $GITHUB_OUTPUT
-
-      - name: Generate Xcode Project
-        run: |
-          xcodegen generate
-
-      - name: Compile Native iOS Application (Swift & Objective-C)
-        run: |
-          mkdir -p build/Release-iphoneos
-          xcodebuild clean build \
-            -project JASONXIT.xcodeproj \
-            -scheme JASONXIT \
-            -configuration Release \
-            -sdk iphoneos \
-            CODE_SIGNING_ALLOWED=NO \
-            CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGN_IDENTITY="" \
-            PROVISIONING_PROFILE_SPECIFIER="" \
-            AD_HOC_CODE_SIGNING_ALLOWED=YES \
-            CONFIGURATION_BUILD_DIR="$(pwd)/build/Release-iphoneos"
-
-      - name: Package & Sign IPA
-        run: |
-          mkdir -p Payload
-          cp -r build/Release-iphoneos/JASONXIT.app Payload/
-
-          # Sign with ldid for sideloading (TrollStore, Scarlet, AltStore, Sideloadly)
-          ldid -S Payload/JASONXIT.app/JASONXIT || true
-          ldid -S Payload/JASONXIT.app || true
-
-          zip -vr "${{ steps.versioning.outputs.ipa_filename }}" Payload
-
-      - name: Upload Native iOS IPA Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ steps.versioning.outputs.artifact_name }}
-          path: ${{ steps.versioning.outputs.ipa_filename }}
+schemes:
+  JASONXIT:
+    build:
+      targets:
+        JASONXIT: all
+    run:
+      config: Release
+    archive:
+      config: Release
