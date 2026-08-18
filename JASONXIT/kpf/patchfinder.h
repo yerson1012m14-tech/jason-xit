@@ -1,16 +1,25 @@
 //
 //  patchfinder.h
-//  darksword-kexploit-fun
-//
-//  Created by seo on 3/26/26.
+//  JASONXIT Kernel Patchfinder
 //
 
-#ifndef patchfinder_h
-#define patchfinder_h
+#ifndef PATCHFINDER_H
+#define PATCHFINDER_H
 
-#include <stdio.h>
+#import <Foundation/Foundation.h>
+#import "xpf.h"
 
-int grab_kernelcache(void);
-int init_xpf(void);
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-#endif /* patchfinder_h */
+int init_patchfinder(uint64_t kbase);
+uint64_t find_allproc_offset(void);
+uint64_t find_kernproc_offset(void);
+uint64_t find_symbol_address(const char *name);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* PATCHFINDER_H */

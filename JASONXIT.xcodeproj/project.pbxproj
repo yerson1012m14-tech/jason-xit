@@ -10,6 +10,7 @@
 		9C010001 /* JASONXITApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C010011 /* JASONXITApp.swift */; };
 		9C010002 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C010012 /* ContentView.swift */; };
 		9C010003 /* JASONXITCore.m in Sources */ = {isa = PBXBuildFile; fileRef = 9C010013 /* JASONXITCore.m */; };
+		9C010004 /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 9C010014 /* Info.plist */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -121,6 +122,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9C010004 /* Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -159,8 +161,6 @@
 				SWIFT_OBJC_BRIDGING_HEADER = "JASONXIT/JASONXIT-Bridging-Header.h";
 				SWIFT_VERSION = 5.9;
 				TARGETED_DEVICE_FAMILY = "1,2";
-USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/**";
-
 			};
 			name = Debug;
 		};
@@ -183,8 +183,6 @@ USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/**";
 				SWIFT_OBJC_BRIDGING_HEADER = "JASONXIT/JASONXIT-Bridging-Header.h";
 				SWIFT_VERSION = 5.9;
 				TARGETED_DEVICE_FAMILY = "1,2";
-USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/**";
-
 			};
 			name = Release;
 		};

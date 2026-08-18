@@ -29,6 +29,10 @@ targets:
         ENABLE_BITCODE: NO
         SWIFT_OBJC_BRIDGING_HEADER: "JASONXIT/JASONXIT-Bridging-Header.h"
         ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES: YES
+        HEADER_SEARCH_PATHS:
+          - "$(SRCROOT)/JASONXIT/**"
+          - "$(SRCROOT)/JASONXIT/kpf"
+          - "$(SRCROOT)/JASONXIT/kexploit"
 
 schemes:
   JASONXIT:
