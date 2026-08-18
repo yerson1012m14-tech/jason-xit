@@ -15,62 +15,71 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Inspect Xcode Environment
+      - name: Setup & Verify Xcode
         run: |
-          echo "=== Xcode Version ==="
+          echo "=== Active Xcode Version ==="
           xcodebuild -version
-          echo "=== SDKs Available ==="
+          echo "=== Available SDKs ==="
           xcodebuild -showsdks
 
-      - name: Install XcodeGen & ldid
+      - name: Install XcodeGen & Tools
         run: |
-          HOMEBREW_NO_AUTO_UPDATE=1 brew install xcodegen ldid || brew link --overwrite xcodegen || true
+          HOMEBREW_NO_AUTO_UPDATE=1 brew install xcodegen ldid || brew install xcodegen || true
           xcodegen --version || true
 
-      - name: Generate Xcode Project (.xcodeproj)
+      - name: Generate Xcode Project
         run: |
           rm -rf JASONXIT.xcodeproj
           xcodegen generate --spec project.yml
 
       - name: Build Native iOS App (.app)
         run: |
-          mkdir -p build/Release-iphoneos
+          mkdir -p build
           
           xcodebuild build \
             -project JASONXIT.xcodeproj \
             -scheme JASONXIT \
-            -destination "generic/platform=iOS" \
             -configuration Release \
-            CODE_SIGN_IDENTITY="" \
-            CODE_SIGNING_REQUIRED=NO \
+            -destination "generic/platform=iOS" \
+            -derivedDataPath build/DerivedData \
             CODE_SIGNING_ALLOWED=NO \
-            AD_HOC_CODE_SIGNING_ALLOWED=YES \
-            CONFIGURATION_BUILD_DIR="$(pwd)/build/Release-iphoneos"
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            PROVISIONING_PROFILE_SPECIFIER="" \
+            AD_HOC_CODE_SIGNING_ALLOWED=YES
 
-      - name: Package & Sign IPA
+      - name: Package & Inject Entitlements into IPA
         run: |
+          rm -rf Payload *.ipa
           mkdir -p Payload
-          cp -r build/Release-iphoneos/JASONXIT.app Payload/
-
-          # Entitlements & Ad-Hoc Sign with ldid
-          if [ -f "JASONXIT/Entitlements.plist" ]; then
-            ldid -SJASONXIT/Entitlements.plist Payload/JASONXIT.app/JASONXIT || true
-            ldid -SJASONXIT/Entitlements.plist Payload/JASONXIT.app || true
-          else
-            ldid -S Payload/JASONXIT.app/JASONXIT || true
-            ldid -S Payload/JASONXIT.app || true
+          
+          # Localizar el binario compilado .app
+          APP_PATH=$(find build/DerivedData/Build/Products/Release-iphoneos -name "*.app" -type d | head -n 1)
+          if [ -z "$APP_PATH" ] || [ ! -d "$APP_PATH" ]; then
+            echo "Buscando en directorio alternativo..."
+            APP_PATH=$(find build -name "*.app" -type d | head -n 1)
           fi
-
-          BUILD_NUM="${{ github.run_number }}"
-          SHORT_SHA="$(git rev-parse --short HEAD || echo 'latest')"
-          IPA_NAME="JASONXIT_v2.0_b${BUILD_NUM}_${SHORT_SHA}.ipa"
-
-          zip -vr "${IPA_NAME}" Payload
-          echo "IPA_NAME=${IPA_NAME}" >> $GITHUB_ENV
+          
+          echo "App localizada en: $APP_PATH"
+          cp -R "$APP_PATH" Payload/JASONXIT.app
+          
+          # Inyección de Entitlements para TrollStore, AltStore, Sideloadly, Scarlet
+          if [ -f "JASONXIT/Entitlements.plist" ]; then
+            echo "Firmando con ldid y Entitlements.plist..."
+            ldid -SJASONXIT/Entitlements.plist Payload/JASONXIT.app/JASONXIT 2>/dev/null || true
+            ldid -SJASONXIT/Entitlements.plist Payload/JASONXIT.app 2>/dev/null || true
+            codesign -s - --force --deep --entitlements JASONXIT/Entitlements.plist Payload/JASONXIT.app 2>/dev/null || true
+          else
+            codesign -s - --force --deep Payload/JASONXIT.app 2>/dev/null || true
+          fi
+          
+          # Empaquetado final IPA
+          zip -qry JASONXIT_v2.0.ipa Payload
+          ls -lh JASONXIT_v2.0.ipa
 
       - name: Upload IPA Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.IPA_NAME }}
-          path: ${{ env.IPA_NAME }}
+          name: JASONXIT_v2.0_iOS_IPA
+          path: JASONXIT_v2.0.ipa
           if-no-files-found: error
