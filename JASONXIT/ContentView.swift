@@ -43,24 +43,38 @@ struct ContentView: View {
             
             // Botón de activación
             Button(action: {
-                isMotorActive.toggle()
-                if isMotorActive {
-                    consoleLogs.append("[+] Initializing kexploit_opa334...")
-                    consoleLogs.append("[+] Triggering sandbox escape...")
-                } else {
-                    consoleLogs.append("[-] Motor Stopped.")
-                }
-            }) {
-                Text(isMotorActive ? "APAGAR MOTOR" : "ACTIVAR MOTOR")
-                    .font(.body)
-                    .fontWeight(.bold)
-                    .foregroundColor(.white)
-                    .padding()
-                    .frame(maxWidth: .infinity)
-                    .background(isMotorActive ? Color.green : Color(red: 1.0, green: 0.0, blue: 0.2))
-                    .cornerRadius(12)
-                    .shadow(color: isMotorActive ? .green : .red, radius: 5)
-            }
+    isMotorActive.toggle()
+    if isMotorActive {
+        consoleLogs.append("[+] Initializing kexploit_opa334...")
+        consoleLogs.append("[+] Triggering sandbox escape...")
+        
+        // --- AQUÍ CONECTAMOS TU MOTOR REAL ---
+        // Llama a la función nativa del archivo sandbox_escape.m que subiste
+        let result = sandbox_escape() 
+        
+        if result == 0 {
+            consoleLogs.append("[🎯] SANDBOX ESCAPED SUCCESS!")
+            consoleLogs.append("[+] Access to system paths GRANTED.")
+        } else {
+            consoleLogs.append("[❌] Exploit failed or device unsupported.")
+            isMotorActive = false
+        }
+        // --------------------------------------
+        
+    } else {
+        consoleLogs.append("[-] Motor Stopped.")
+    }
+}) {
+    Text(isMotorActive ? "APAGAR MOTOR" : "ACTIVAR MOTOR")
+        .font(.body)
+        .fontWeight(.bold)
+        .foregroundColor(.white)
+        .padding()
+        .frame(maxWidth: .infinity)
+        .background(isMotorActive ? Color.green : Color(red: 1.0, green: 0.0, blue: 0.2))
+        .cornerRadius(12)
+        .shadow(color: isMotorActive ? .green : .red, radius: 5)
+}
             .padding(.horizontal)
             
             // Consola de Logs
