@@ -1,100 +1,34 @@
-name: Build JASON XIT iOS IPA
-
-on:
-  push:
-    branches: [ "main", "master" ]
-  pull_request:
-    branches: [ "main", "master" ]
-  workflow_dispatch:
+name: Compilar FilzaSlop dylib
+on: [push, workflow_dispatch]
 
 jobs:
   build:
-    runs-on: macos-15
-
+    runs-on: macos-latest
     steps:
-      - name: Checkout Repository
+      - name: Checkout
         uses: actions/checkout@v4
-
-      - name: Select Xcode 16
-        run: |
-          sudo xcode-select -switch /Applications/Xcode_16.0.app/Contents/Developer || sudo xcode-select -switch /Applications/Xcode.app/Contents/Developer
-          xcodebuild -version
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
         with:
-          node-version: 20
+          submodules: recursive
 
-      - name: Build Web Application
+      - name: Instalar dependencias
         run: |
-          npm ci || npm install
-          npm run build
-          mkdir -p JASONXIT/Web
-          cp -r dist/* JASONXIT/Web/
+          brew install ldid dpkg make
+          echo "/opt/homebrew/opt/make/libexec/gnubin" >> $GITHUB_PATH
+          git clone --recursive https://github.com/theos/theos.git $HOME/theos
+          echo "THEOS=$HOME/theos" >> $GITHUB_ENV
+          echo "$HOME/theos/bin" >> $GITHUB_PATH
 
-      - name: Install Tools
-        run: brew install xcodegen ldid
-
-      - name: Generate Dynamic Version & Bundle Identifier
-        id: versioning
+      - name: Compilar
         run: |
-          BUILD_NUM="${{ github.run_number }}"
-          TIMESTAMP="$(date +%Y%m%d%H%M)"
-          SHORT_SHA="$(git rev-parse --short HEAD)"
-          BUNDLE_ID="com.jasonxit.engine.b${BUILD_NUM}"
-          VERSION_NAME="2.0.${BUILD_NUM}"
-          DISPLAY_NAME="JASON XIT v2.${BUILD_NUM}"
-          IPA_FILENAME="JASONXIT_v2.${BUILD_NUM}_b${BUILD_NUM}_${SHORT_SHA}.ipa"
-          ARTIFACT_NAME="JASONXIT_v2.${BUILD_NUM}_b${BUILD_NUM}_${SHORT_SHA}.ipa"
+          export SYSROOT=$(xcrun --sdk iphoneos --show-sdk-path)
+          export TARGET=iphone:clang:latest:18.0
+          make clean
+          make package FINALPACKAGE=1
 
-          echo "bundle_id=${BUNDLE_ID}" >> $GITHUB_OUTPUT
-          echo "version_name=${VERSION_NAME}" >> $GITHUB_OUTPUT
-          echo "display_name=${DISPLAY_NAME}" >> $GITHUB_OUTPUT
-          echo "timestamp=${TIMESTAMP}" >> $GITHUB_OUTPUT
-          echo "ipa_filename=${IPA_FILENAME}" >> $GITHUB_OUTPUT
-          echo "artifact_name=${ARTIFACT_NAME}" >> $GITHUB_OUTPUT
-
-          # Update Info.plist with unique bundle ID, version and display name
-          /usr/libexec/PlistBuddy -c "Set :CFBundleIdentifier ${BUNDLE_ID}" JASONXIT/Info.plist || true
-          /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString ${VERSION_NAME}" JASONXIT/Info.plist || true
-          /usr/libexec/PlistBuddy -c "Set :CFBundleVersion ${TIMESTAMP}" JASONXIT/Info.plist || true
-          /usr/libexec/PlistBuddy -c "Set :CFBundleDisplayName ${DISPLAY_NAME}" JASONXIT/Info.plist || true
-
-      - name: Generate Xcode Project
-        run: |
-          sed -i '' "s/PRODUCT_BUNDLE_IDENTIFIER: com.jasonxit.engine/PRODUCT_BUNDLE_IDENTIFIER: ${{ steps.versioning.outputs.bundle_id }}/g" project.yml
-          xcodegen generate
-
-      - name: Build Application
-        run: |
-          xcodebuild clean build \
-            -project JASONXIT.xcodeproj \
-            -scheme JASONXIT \
-            -configuration Release \
-            -sdk iphoneos \
-            CODE_SIGNING_ALLOWED=NO \
-            CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGN_IDENTITY="" \
-            AD_HOC_CODE_SIGNING_ALLOWED=YES \
-            CONFIGURATION_BUILD_DIR=build/Release-iphoneos
-
-      - name: Package & Sign IPA
-        run: |
-          mkdir -p Payload
-          cp -r build/Release-iphoneos/JASONXIT.app Payload/
-          mkdir -p Payload/JASONXIT.app/Web
-          cp -r JASONXIT/Web/* Payload/JASONXIT.app/Web/
-          cp -r JASONXIT/Web/* Payload/JASONXIT.app/
-          if [ -f "JASONXIT/Entitlements.plist" ]; then
-            ldid -SJASONXIT/Entitlements.plist Payload/JASONXIT.app/JASONXIT
-            ldid -SJASONXIT/Entitlements.plist Payload/JASONXIT.app
-          else
-            ldid -S Payload/JASONXIT.app
-          fi
-          zip -vr "${{ steps.versioning.outputs.ipa_filename }}" Payload
-
-      - name: Upload IPA Artifact
+      - name: Subir dylib
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ steps.versioning.outputs.artifact_name }}
-          path: ${{ steps.versioning.outputs.ipa_filename }}
+          name: filzaslop-dylib
+          path: |
+            .theos/obj/*.dylib
+            packages/*.deb
