@@ -1,10 +1,10 @@
-name: Build JASONXIT IPA
+name: Build JASON XIT iOS IPA
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main", "master" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "main", "master" ]
   workflow_dispatch:
 
 jobs:
@@ -12,37 +12,65 @@ jobs:
     runs-on: macos-14
 
     steps:
-    - name: Checkout Repository
-      uses: actions/checkout@v4
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
-    - name: Set up Xcode Version
-      uses: maxim-lobanov/setup-xcode@v1
-      with:
-        xcode-version: '15.4'
+      - name: Inspect Xcode Environment
+        run: |
+          echo "=== Xcode Version ==="
+          xcodebuild -version
+          echo "=== SDKs Available ==="
+          xcodebuild -showsdks
 
-    - name: Build Xcode Project
-      run: |
-        xcodebuild -project JASONXIT.xcodeproj \
-                   -scheme JASONXIT \
-                   -configuration Release \
-                   -sdk iphoneos \
-                   -derivedDataPath build/DerivedData \
-                   USER_HEADER_SEARCH_PATHS='$(SRCROOT)/**' \
-                   CODE_SIGNING_ALLOWED=NO \
-                   CODE_SIGNING_REQUIRED=NO \
-                   CODE_SIGN_IDENTITY="" \
-                   PROVISIONING_PROFILE_REQUIRED=NO \
-                   clean build
+      - name: Install XcodeGen & ldid
+        run: |
+          HOMEBREW_NO_AUTO_UPDATE=1 brew install xcodegen ldid || brew link --overwrite xcodegen || true
+          xcodegen --version || true
 
-    - name: Package IPA
-      run: |
-        mkdir -p build/Payload
-        cp -r build/DerivedData/Build/Products/Release-iphoneos/JASONXIT.app build/Payload/
-        cd build
-        zip -r JASONXIT.ipa Payload
-        
-    - name: Upload IPA Artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: JASONXIT-Unsigned
-        path: build/JASONXIT.ipa
+      - name: Generate Xcode Project (.xcodeproj)
+        run: |
+          rm -rf JASONXIT.xcodeproj
+          xcodegen generate --spec project.yml
+
+      - name: Build Native iOS App (.app)
+        run: |
+          mkdir -p build/Release-iphoneos
+          
+          xcodebuild build \
+            -project JASONXIT.xcodeproj \
+            -scheme JASONXIT \
+            -destination "generic/platform=iOS" \
+            -configuration Release \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO \
+            AD_HOC_CODE_SIGNING_ALLOWED=YES \
+            CONFIGURATION_BUILD_DIR="$(pwd)/build/Release-iphoneos"
+
+      - name: Package & Sign IPA
+        run: |
+          mkdir -p Payload
+          cp -r build/Release-iphoneos/JASONXIT.app Payload/
+
+          # Entitlements & Ad-Hoc Sign with ldid
+          if [ -f "JASONXIT/Entitlements.plist" ]; then
+            ldid -SJASONXIT/Entitlements.plist Payload/JASONXIT.app/JASONXIT || true
+            ldid -SJASONXIT/Entitlements.plist Payload/JASONXIT.app || true
+          else
+            ldid -S Payload/JASONXIT.app/JASONXIT || true
+            ldid -S Payload/JASONXIT.app || true
+          fi
+
+          BUILD_NUM="${{ github.run_number }}"
+          SHORT_SHA="$(git rev-parse --short HEAD || echo 'latest')"
+          IPA_NAME="JASONXIT_v2.0_b${BUILD_NUM}_${SHORT_SHA}.ipa"
+
+          zip -vr "${IPA_NAME}" Payload
+          echo "IPA_NAME=${IPA_NAME}" >> $GITHUB_ENV
+
+      - name: Upload IPA Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.IPA_NAME }}
+          path: ${{ env.IPA_NAME }}
+          if-no-files-found: error
