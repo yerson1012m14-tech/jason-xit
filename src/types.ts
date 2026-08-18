@@ -34,6 +34,8 @@ export interface EngineStats {
   memoryUsage: string;
   osVersion: string;
   uptime: string;
+  pageTableBase: string;
+  physrwMethod: string;
 }
 
 export interface EngineState {
@@ -42,6 +44,22 @@ export interface EngineState {
   errorMessage: string | null;
   logs: Array<{ time: string; text: string; type: 'info' | 'success' | 'warn' | 'error' }>;
   stats: EngineStats;
+}
+
+export interface MemoryBlock {
+  address: string;
+  bytes: number[];
+  ascii: string;
+  description?: string;
+}
+
+export interface TweakPatch {
+  id: string;
+  name: string;
+  description: string;
+  status: 'installed' | 'not_installed' | 'pending';
+  targetPath: string;
+  category: string;
 }
 
 export interface LicenseState {

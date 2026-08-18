@@ -17,6 +17,8 @@ import {
   FilePlus,
   FolderPlus,
   ShieldAlert,
+  Upload,
+  KeyRound,
 } from 'lucide-react';
 
 export const ArchivosTab: React.FC = () => {
@@ -31,6 +33,7 @@ export const ArchivosTab: React.FC = () => {
     setViewingFile,
     createItem,
     deleteItem,
+    chmodItem,
   } = useApp();
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -38,6 +41,8 @@ export const ArchivosTab: React.FC = () => {
   const [newItemName, setNewItemName] = useState('');
   const [newItemType, setNewItemType] = useState<'file' | 'dir'>('file');
   const [newItemContent, setNewItemContent] = useState('');
+  const [chmodModalItem, setChmodModalItem] = useState<FSItem | null>(null);
+  const [chmodValue, setChmodValue] = useState('rwxr-xr-x');
 
   const filteredItems = currentItems.filter(item =>
     item.name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -78,36 +83,91 @@ export const ArchivosTab: React.FC = () => {
     setShowCreateModal(false);
   };
 
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+    const file = files[0];
+    const reader = new FileReader();
+    reader.onload = event => {
+      const text = event.target?.result as string;
+      createItem(file.name, false, text || '');
+    };
+    reader.readAsText(file);
+  };
+
+  // Breadcrumb path parts
+  const breadcrumbParts = currentPath === '__root__' ? [] : currentPath.split('/').filter(Boolean);
+
   return (
     <div className="flex flex-1 flex-col pb-24">
       {/* Path Header Bar */}
       <div className="border-b border-red-950/40 bg-zinc-950/60 px-4 py-3 backdrop-blur-sm">
         <div className="flex items-center justify-between gap-2">
-          <div className="flex items-center gap-2 overflow-hidden">
+          <div className="flex items-center gap-2 overflow-x-auto">
             {currentPath !== '__root__' && (
               <button
                 onClick={navigateUp}
-                className="flex h-8 w-8 items-center justify-center rounded-lg border border-red-900/60 bg-[#140505] text-[#ff3333] transition-all hover:bg-red-950/40 hover:scale-105 active:scale-95"
+                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-red-900/60 bg-[#140505] text-[#ff3333] transition-all hover:bg-red-950/40 hover:scale-105 active:scale-95"
                 title="Volver"
               >
                 <ChevronLeft className="h-5 w-5" />
               </button>
             )}
 
-            <div className="font-mono text-xs font-semibold text-zinc-300 truncate">
-              {currentPath === '__root__' ? 'JASON X2' : currentPath}
+            {/* Clickable breadcrumbs */}
+            <div className="flex items-center gap-1 font-mono text-xs font-semibold text-zinc-300 whitespace-nowrap overflow-x-auto py-0.5">
+              {currentPath === '__root__' ? (
+                <span className="text-white">JASON X2</span>
+              ) : (
+                <>
+                  <button
+                    onClick={() => navigateTo('__root__')}
+                    className="hover:text-red-400 text-zinc-500 transition-colors"
+                  >
+                    root
+                  </button>
+                  {breadcrumbParts.map((part, index) => {
+                    const subPath = '/' + breadcrumbParts.slice(0, index + 1).join('/');
+                    const isLast = index === breadcrumbParts.length - 1;
+                    return (
+                      <React.Fragment key={subPath}>
+                        <span className="text-zinc-600">/</span>
+                        <button
+                          onClick={() => navigateTo(subPath)}
+                          className={`hover:text-red-400 transition-colors ${
+                            isLast ? 'text-red-400 font-bold' : 'text-zinc-400'
+                          }`}
+                        >
+                          {part}
+                        </button>
+                      </React.Fragment>
+                    );
+                  })}
+                </>
+              )}
             </div>
           </div>
 
-          {/* New Item Button if inside a folder */}
+          {/* Action Buttons if inside a folder */}
           {currentPath !== '__root__' && !isRestricted && (
-            <button
-              onClick={() => setShowCreateModal(true)}
-              className="flex items-center gap-1 rounded-lg border border-red-800/60 bg-red-950/30 px-2.5 py-1 text-xs font-mono font-bold text-[#ff4444] transition-all hover:border-[#ff1a1a] hover:text-white"
-            >
-              <Plus className="h-3.5 w-3.5" />
-              <span className="hidden sm:inline">Nuevo</span>
-            </button>
+            <div className="flex items-center gap-1.5 shrink-0">
+              <label
+                className="flex cursor-pointer items-center gap-1 rounded-lg border border-zinc-800 bg-zinc-900 px-2 py-1 text-xs font-mono text-zinc-300 hover:border-red-500 hover:text-white"
+                title="Subir archivo"
+              >
+                <Upload className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">Subir</span>
+                <input type="file" onChange={handleFileUpload} className="hidden" />
+              </label>
+
+              <button
+                onClick={() => setShowCreateModal(true)}
+                className="flex items-center gap-1 rounded-lg border border-red-800/60 bg-red-950/30 px-2.5 py-1 text-xs font-mono font-bold text-[#ff4444] transition-all hover:border-[#ff1a1a] hover:text-white"
+              >
+                <Plus className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">Nuevo</span>
+              </button>
+            </div>
           )}
         </div>
 
@@ -238,7 +298,7 @@ export const ArchivosTab: React.FC = () => {
                       {item.name}
                     </div>
                     <div className="flex items-center gap-2 font-mono text-[10px] text-zinc-500">
-                      <span>{item.permissions || 'rwxr-xr-x'}</span>
+                      <span className="font-mono text-zinc-400">{item.permissions || 'rwxr-xr-x'}</span>
                       {item.size && <span>• {item.size}</span>}
                       {item.modified && <span className="hidden sm:inline">• {item.modified}</span>}
                     </div>
@@ -246,6 +306,17 @@ export const ArchivosTab: React.FC = () => {
                 </button>
 
                 <div className="flex items-center gap-1.5 pl-2">
+                  <button
+                    onClick={() => {
+                      setChmodModalItem(item);
+                      setChmodValue(item.permissions || 'rwxr-xr-x');
+                    }}
+                    className="opacity-0 group-hover:opacity-100 p-1.5 text-zinc-500 hover:text-amber-400 transition-all rounded"
+                    title="Cambiar permisos (chmod)"
+                  >
+                    <KeyRound className="h-3.5 w-3.5" />
+                  </button>
+
                   <button
                     onClick={() => deleteItem(item.name)}
                     className="opacity-0 group-hover:opacity-100 p-1.5 text-zinc-500 hover:text-red-400 transition-all rounded"
@@ -263,6 +334,70 @@ export const ArchivosTab: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* Chmod Permissions Modal */}
+      {chmodModalItem && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-sm rounded-2xl border-2 border-red-500/60 bg-[#121212] p-5 shadow-[0_0_25px_rgba(255,26,26,0.3)]">
+            <h3 className="font-mono text-sm font-bold tracking-wider text-white mb-2">
+              PERMISOS (CHMOD)
+            </h3>
+            <p className="font-mono text-xs text-zinc-400 mb-4 truncate">
+              {chmodModalItem.name}
+            </p>
+
+            <div className="space-y-3">
+              <div>
+                <label className="block font-mono text-[11px] text-zinc-400 mb-1">
+                  Permisos UNIX (ej: rwxr-xr-x, rw-r--r--, rwxrwxrwx)
+                </label>
+                <input
+                  type="text"
+                  value={chmodValue}
+                  onChange={e => setChmodValue(e.target.value)}
+                  className="w-full rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-2 font-mono text-xs text-white outline-none focus:border-red-500"
+                />
+              </div>
+
+              <div className="flex flex-wrap gap-1.5">
+                {['rwxr-xr-x (755)', 'rw-r--r-- (644)', 'rwxrwxrwx (777)'].map(preset => {
+                  const val = preset.split(' ')[0];
+                  return (
+                    <button
+                      key={preset}
+                      type="button"
+                      onClick={() => setChmodValue(val)}
+                      className="rounded border border-zinc-800 bg-zinc-900 px-2 py-1 font-mono text-[10px] text-zinc-300 hover:border-red-500 hover:text-white"
+                    >
+                      {preset}
+                    </button>
+                  );
+                })}
+              </div>
+
+              <div className="flex gap-2 justify-end pt-3">
+                <button
+                  type="button"
+                  onClick={() => setChmodModalItem(null)}
+                  className="rounded-lg border border-zinc-700 px-3 py-1.5 font-mono text-xs font-bold text-zinc-400 hover:text-white"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    chmodItem(chmodModalItem.name, chmodValue);
+                    setChmodModalItem(null);
+                  }}
+                  className="rounded-lg border border-red-500 bg-[#7a0000] px-4 py-1.5 font-mono text-xs font-bold text-white shadow-[0_0_10px_rgba(255,26,26,0.3)] hover:bg-[#b30000]"
+                >
+                  Aplicar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Create New Item Modal */}
       {showCreateModal && (
@@ -351,3 +486,4 @@ export const ArchivosTab: React.FC = () => {
     </div>
   );
 };
+
