@@ -3,8 +3,8 @@
 
 #import <Foundation/Foundation.h>
 
-// Importamos el escape de sandbox y las funciones del exploit nativo
+// Quitamos la subcarpeta de la ruta para que busque de forma general
 #import "sandbox_escape.h"
-#import "kexploit/kexploit.h" // Ajusta la ruta si kexploit.h está suelto dentro de su carpeta
+#import "kexploit.h" 
 
 #endif
