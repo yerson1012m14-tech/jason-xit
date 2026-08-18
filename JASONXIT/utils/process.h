@@ -1,35 +1,32 @@
 //
 //  process.h
-//  darksword-kexploit-fun
-//
-//  Created by seo on 3/26/26.
+//  JASONXIT Process Utilities
 //
 
-#ifndef process_h
-#define process_h
+#ifndef PROCESS_H
+#define PROCESS_H
 
-#include <stdio.h>
 #include <stdint.h>
+#include <stdbool.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include "../kexploit/krw.h"
+#include "../kexploit/offsets.h"
+#include "../kexploit/kutils.h"
 
-struct arm_saved_state64
-{
-  uint64_t x[29];
-  uint64_t fp;
-  uint64_t lr;
-  uint64_t sp;
-  uint64_t pc;
-  uint32_t cpsr;
-  uint32_t aspsr;
-  uint64_t far;
-  uint32_t esr;
-  uint32_t exception;
-  uint64_t jophash;
-};
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-int crash_process(const char* name);
-int watch_process(const char* name);
+#ifndef P_DISABLE_ASLR
+#define P_DISABLE_ASLR 0x00000004
+#endif
 
-int disable_aslr(void);
-int enable_aslr(void);
+int disable_aslr(pid_t pid);
+int enable_aslr(pid_t pid);
 
-#endif /* process_h */
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* PROCESS_H */

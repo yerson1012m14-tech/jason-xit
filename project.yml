@@ -33,6 +33,7 @@ targets:
           - "$(SRCROOT)/JASONXIT/**"
           - "$(SRCROOT)/JASONXIT/kpf"
           - "$(SRCROOT)/JASONXIT/kexploit"
+          - "$(SRCROOT)/JASONXIT/utils"
 
 schemes:
   JASONXIT:
