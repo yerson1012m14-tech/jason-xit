@@ -27,7 +27,6 @@ NS_ASSUME_NONNULL_BEGIN
 @interface JASONXITCore : NSObject
 
 + (instancetype)shared;
-+ (instancetype)sharedCore;
 
 - (JASONXITSystemInfo *)fetchSystemInfo;
 - (void)triggerHapticFeedback:(NSString *)style;
