@@ -439,7 +439,7 @@ struct MotorDiagnosticoSection: View {
                 
                 ScrollView {
                     LazyVStack(alignment: .leading, spacing: 4) {
-                        ForEach(appState.logs) { log in
+                        ForEach(appState.logs, id: \.id) { log in
                             HStack(alignment: .top, spacing: 6) {
                                 Text("[\(log.time)]")
                                     .font(.system(size: 10, design: .monospaced))
@@ -498,7 +498,7 @@ struct MotorTerminalSection: View {
                             .font(.system(size: 11, design: .monospaced))
                             .foregroundColor(.gray)
                         
-                        ForEach(appState.terminalHistory) { item in
+                        ForEach(appState.terminalHistory, id: \.id) { item in
                             VStack(alignment: .leading, spacing: 2) {
                                 HStack {
                                     Text("jasonxit#")
@@ -625,7 +625,7 @@ struct MotorProcesosSection: View {
                 .foregroundColor(.gray)
                 .padding(.horizontal)
             
-            ForEach(appState.processes) { proc in
+            ForEach(appState.processes, id: \.id) { proc in
                 HStack {
                     VStack(alignment: .leading, spacing: 2) {
                         HStack {
@@ -680,7 +680,7 @@ struct MotorParchesSection: View {
                 .foregroundColor(.gray)
                 .padding(.horizontal)
             
-            ForEach(appState.tweaks) { tweak in
+            ForEach(appState.tweaks, id: \.id) { tweak in
                 HStack {
                     VStack(alignment: .leading, spacing: 2) {
                         Text(tweak.name)
@@ -763,7 +763,7 @@ struct ArchivosFullTabView: View {
                     
                     // List of items
                     List {
-                        ForEach(items) { item in
+                        ForEach(items, id: \.id) { item in
                             Button(action: {
                                 if item.isDirectory {
                                     loadDir(item.path)
@@ -838,12 +838,13 @@ struct AppDataFullTabView: View {
     @State private var searchQuery = ""
     
     var filteredApps: [AppDataContainer] {
+        let apps: [AppDataContainer] = appState.installedApps
         if searchQuery.isEmpty {
-            return appState.installedApps
+            return apps
         }
-        return appState.installedApps.filter {
-            $0.name.lowercased().contains(searchQuery.lowercased()) ||
-            $0.bundleId.lowercased().contains(searchQuery.lowercased())
+        return apps.filter { (app: AppDataContainer) -> Bool in
+            app.name.lowercased().contains(searchQuery.lowercased()) ||
+            app.bundleId.lowercased().contains(searchQuery.lowercased())
         }
     }
     
@@ -868,7 +869,7 @@ struct AppDataFullTabView: View {
                         .padding(.horizontal)
                         
                         // Apps List
-                        ForEach(filteredApps) { app in
+                        ForEach(filteredApps, id: \.id) { (app: AppDataContainer) in
                             VStack(alignment: .leading, spacing: 8) {
                                 HStack(spacing: 12) {
                                     Text(app.iconEmoji)
@@ -977,12 +978,12 @@ struct AjustesFullTabView: View {
 }
 
 // MARK: - Supporting Models
-struct FileSystemItem: Identifiable {
-    let id = UUID()
-    let name: String
-    let path: String
-    let isDirectory: Bool
-    let size: UInt64
+struct FileSystemItem: Identifiable, Hashable {
+    var id = UUID()
+    var name: String
+    var path: String
+    var isDirectory: Bool
+    var size: UInt64
 }
 
 struct StatCard: View {
