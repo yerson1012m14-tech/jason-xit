@@ -11,6 +11,10 @@
 
 @implementation JASONXITCore
 
++ (instancetype)shared {
+    return [self sharedCore];
+}
+
 + (instancetype)sharedCore {
     static JASONXITCore *sharedInstance = nil;
     static dispatch_once_t onceToken;
