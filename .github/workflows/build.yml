@@ -20,7 +20,6 @@ jobs:
           echo "=== Xcode disponible en el Runner ==="
           xcodebuild -version
           
-          # Si Xcode 16 está disponible en el runner, usarlo; de lo contrario mantener Xcode 15
           if [ -d "/Applications/Xcode_16.0.app" ]; then
             sudo xcode-select -s /Applications/Xcode_16.0.app/Contents/Developer
           elif [ -d "/Applications/Xcode_15.4.app" ]; then
@@ -35,14 +34,12 @@ jobs:
           HOMEBREW_NO_AUTO_UPDATE=1 brew install xcodegen ldid || true
           xcodegen --version || true
 
-      - name: Generate Xcode Project with Compatibility
+      - name: Generate Xcode Project
         run: |
           rm -rf JASONXIT.xcodeproj
           xcodegen generate --spec project.yml
           
-          # Forzar formato de compatibilidad Xcode 14/15 (objectVersion 56) para evitar error 74 (future format 77)
           if [ -f "JASONXIT.xcodeproj/project.pbxproj" ]; then
-            echo "Ajustando objectVersion para máxima compatibilidad..."
             sed -i '' 's/objectVersion = [0-9]*/objectVersion = 56/g' JASONXIT.xcodeproj/project.pbxproj 2>/dev/null || sed -i 's/objectVersion = [0-9]*/objectVersion = 56/g' JASONXIT.xcodeproj/project.pbxproj 2>/dev/null || true
             sed -i '' 's/compatibilityVersion = "[^"]*"/compatibilityVersion = "Xcode 14.0"/g' JASONXIT.xcodeproj/project.pbxproj 2>/dev/null || sed -i 's/compatibilityVersion = "[^"]*"/compatibilityVersion = "Xcode 14.0"/g' JASONXIT.xcodeproj/project.pbxproj 2>/dev/null || true
           fi
@@ -60,42 +57,34 @@ jobs:
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGN_IDENTITY="" \
-            PROVISIONING_PROFILE_SPECIFIER="" \
-            AD_HOC_CODE_SIGNING_ALLOWED=YES \
-            COMPILER_INDEX_STORE_ENABLE=NO
+            AD_HOC_CODE_SIGNING_ALLOWED=YES
 
-      - name: Package & Inject Entitlements into IPA
+      - name: Package & Sign IPA
         run: |
-          rm -rf Payload *.ipa
+          APP_PATH=$(find build/DerivedData -name "*.app" -type d | head -n 1)
+          if [ -z "$APP_PATH" ]; then
+            echo "Error: No se encontró el bundle .app compilado."
+            exit 1
+          fi
+          
           mkdir -p Payload
+          cp -r "$APP_PATH" Payload/
           
-          # Localizar el binario compilado .app
-          APP_PATH=$(find build/DerivedData/Build/Products/Release-iphoneos -name "*.app" -type d | head -n 1)
-          if [ -z "$APP_PATH" ] || [ ! -d "$APP_PATH" ]; then
-            echo "Buscando en directorio alternativo..."
-            APP_PATH=$(find build -name "*.app" -type d | head -n 1)
+          # Aplicar pseudo-firma ad-hoc con ldid si está disponible
+          if command -v ldid &> /dev/null; then
+            if [ -f "JASONXIT/Entitlements.plist" ]; then
+              ldid -SJASONXIT/Entitlements.plist "Payload/$(basename "$APP_PATH")" || true
+            else
+              ldid -S "Payload/$(basename "$APP_PATH")" || true
+            fi
           fi
           
-          echo "App localizada en: $APP_PATH"
-          cp -R "$APP_PATH" Payload/JASONXIT.app
-          
-          # Inyección de Entitlements para TrollStore, AltStore, Sideloadly, Scarlet
-          if [ -f "JASONXIT/Entitlements.plist" ]; then
-            echo "Firmando con ldid y Entitlements.plist..."
-            ldid -SJASONXIT/Entitlements.plist Payload/JASONXIT.app/JASONXIT 2>/dev/null || true
-            ldid -SJASONXIT/Entitlements.plist Payload/JASONXIT.app 2>/dev/null || true
-            codesign -s - --force --deep --entitlements JASONXIT/Entitlements.plist Payload/JASONXIT.app 2>/dev/null || true
-          else
-            codesign -s - --force --deep Payload/JASONXIT.app 2>/dev/null || true
-          fi
-          
-          # Empaquetado final IPA
-          zip -qry JASONXIT_v2.0.ipa Payload
-          ls -lh JASONXIT_v2.0.ipa
+          zip -r9 JASONXIT_v2.0.ipa Payload
+          rm -rf Payload
 
       - name: Upload IPA Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: JASONXIT_v2.0_iOS_IPA
+          name: JASONXIT_v2.0.ipa
           path: JASONXIT_v2.0.ipa
-          if-no-files-found: error
+          retention-days: 7
