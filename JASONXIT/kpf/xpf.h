@@ -1,25 +1,37 @@
 //
-//  xpf.m
-//  JASONXIT XPF implementation
+//  xpf.h
+//  JASONXIT Kernel Patchfinder Framework (XPF)
 //
 
-#import "xpf.h"
-#import <string.h>
+#ifndef XPF_H
+#define XPF_H
 
-int xpf_init_state(xpf_state_t *state, uint64_t kernel_base) {
-    if (!state) return -1;
-    state->kernel_base = kernel_base;
-    state->kernel_slide = kernel_base - 0xFFFFFFF007004000;
-    return 0;
-}
+#include <stdint.h>
+#include <stdbool.h>
+#include <stddef.h>
 
-uint64_t xpf_query_symbol(xpf_state_t *state, const char *symbol_name) {
-    if (!state || !symbol_name) return 0;
-    if (strcmp(symbol_name, "allproc") == 0) {
-        return state->kernel_base + 0x234C10;
-    }
-    if (strcmp(symbol_name, "kernproc") == 0) {
-        return state->kernel_base + 0x289000;
-    }
-    return state->kernel_base + 0x100000;
+#ifdef __OBJC__
+#import <Foundation/Foundation.h>
+#endif
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+typedef struct {
+    uint64_t kernel_base;
+    uint64_t kernel_slide;
+    uint64_t allproc_offset;
+    uint64_t kernproc_offset;
+} xpf_state_t;
+
+int xpf_init(uint64_t kbase);
+uint64_t xpf_find_allproc(void);
+uint64_t xpf_find_symbol(const char *symbol_name);
+uint64_t xpf_find_gadget(const uint8_t *bytes, size_t len);
+
+#ifdef __cplusplus
 }
+#endif
+
+#endif /* XPF_H */

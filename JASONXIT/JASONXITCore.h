@@ -10,6 +10,7 @@
 #import <mach/mach_host.h>
 #import <sys/utsname.h>
 #import <sys/sysctl.h>
+#import "JASONXITFilzaBridge.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -33,6 +34,12 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSArray<NSDictionary *> *)listDirectoryContents:(NSString *)path;
 - (BOOL)createFileAtPath:(NSString *)path content:(NSData *)content error:(NSError **)error;
 - (BOOL)deleteItemAtPath:(NSString *)path error:(NSError **)error;
+- (JASONXITFilzaBridge *)filzaBridge;
+- (void)prepareFilzaFilesystem;
+- (NSString *)filzaVirtualRoot;
+- (NSString *)filzaArchivePath;
+- (nullable NSString *)resolveAppDataContainer:(NSString *)bundleIdentifier error:(NSString * _Nullable * _Nullable)error;
+- (BOOL)filzaPathHasActiveLease:(NSString *)path;
 
 @end
 

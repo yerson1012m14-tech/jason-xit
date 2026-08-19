@@ -113,4 +113,12 @@
     return [[NSFileManager defaultManager] removeItemAtPath:path error:error];
 }
 
+- (JASONXITFilzaBridge *)filzaBridge { return [JASONXITFilzaBridge shared]; }
+- (void)prepareFilzaFilesystem { [[JASONXITFilzaBridge shared] prepareFilesystem]; }
+- (NSString *)filzaVirtualRoot { return [[JASONXITFilzaBridge shared] virtualRoot]; }
+- (NSString *)filzaArchivePath { return [[JASONXITFilzaBridge shared] archivePath]; }
+- (NSString *)resolveAppDataContainer:(NSString *)bundleIdentifier error:(NSString **)error { return [[JASONXITFilzaBridge shared] dataContainerPathForIdentifier:bundleIdentifier error:error]; }
+- (BOOL)filzaPathHasActiveLease:(NSString *)path { return [[JASONXITFilzaBridge shared] pathHasActiveLease:path]; }
+
+
 @end

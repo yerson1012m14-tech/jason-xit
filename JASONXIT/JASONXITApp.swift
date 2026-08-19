@@ -113,12 +113,28 @@ class JASONXITAppState: ObservableObject {
     
     init() {
         refreshSystemInfo()
+        JASONXITCore.shared().prepareFilzaFilesystem()
+        let root = JASONXITCore.shared().filzaVirtualRoot()
+        let mcm = JASONXITCore.shared().filzaBridge().isContainerManagerAvailable ? "disponible" : "no disponible"
+        addLog("Filesystem Filza preparado en: \(root)", level: .info)
+        addLog("ContainerManager: \(mcm)", level: mcm == "disponible" ? .success : .warn)
         addLog("JASON XIT v2.0 preparado en entorno nativo Apple iOS", level: .info)
         addLog("Núcleo Mach Kernel y subsistema de renderizado inicializados.", level: .success)
     }
     
     func refreshSystemInfo() {
         self.systemInfo = JASONXITCore.shared().fetchSystemInfo()
+    }
+
+    func resolveRealContainer(for bundleIdentifier: String) -> String? {
+        var error: NSString?
+        let path = JASONXITCore.shared().resolveAppDataContainer(bundleIdentifier, error: &error)
+        if let path {
+            addLog("Contenedor real resuelto: \(bundleIdentifier) → \(path)", level: .success)
+        } else {
+            addLog("No se pudo resolver \(bundleIdentifier): \(error as String? ?? "sin detalle")", level: .warn)
+        }
+        return path
     }
     
     func generateSampleKey() {

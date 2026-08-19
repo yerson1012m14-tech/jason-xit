@@ -730,6 +730,7 @@ struct ArchivosFullTabView: View {
                         HStack(spacing: 6) {
                             ShortcutButton(title: "🏠 Home", path: NSHomeDirectory(), current: $currentPath) { loadDir($0) }
                             ShortcutButton(title: "📁 Documentos", path: NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first ?? "", current: $currentPath) { loadDir($0) }
+                            ShortcutButton(title: "🗄️ Filza Storage", path: JASONXITCore.shared().filzaVirtualRoot(), current: $currentPath) { loadDir($0) }
                             ShortcutButton(title: "📦 Bundle", path: Bundle.main.bundlePath, current: $currentPath) { loadDir($0) }
                             ShortcutButton(title: "⚡ Root (/)", path: "/", current: $currentPath) { loadDir($0) }
                         }
